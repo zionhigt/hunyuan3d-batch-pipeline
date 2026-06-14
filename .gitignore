@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project I/O
+input/*
+!input/.gitkeep
+output/*
+!output/.gitkeep
+*.glb
+*.gltf
+*.obj
+*.fbx
+*.png
+*.jpg
+*.jpeg
+*.webp
+!docs/**/*.png
+
+# Model weights / caches
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+weights/
+checkpoints/
+.cache/
+huggingface/
+
+# Logs
+*.log
+logs/

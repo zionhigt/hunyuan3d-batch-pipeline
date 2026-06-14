@@ -1,0 +1,37 @@
+# Hunyuan3D batch pipeline - default configuration
+# All values can be overridden on the command line (see src/single.py --help
+# and src/batch.py --help).
+
+# HuggingFace model id or local path to the Hunyuan3D-2.1 weights.
+model_path: "tencent/Hunyuan3D-2.1"
+
+# Generate PBR textures (Hunyuan3DPaintPipeline). Set to false for geometry
+# only: faster, and uses significantly less VRAM.
+enable_texture: true
+
+# Shape generation quality. Higher = more geometric detail, more VRAM/time.
+# Typical values: 128 (draft), 256 (default), 384+ (high quality).
+octree_resolution: 256
+
+# Number of diffusion steps for shape generation. Higher = more accurate,
+# slower.
+num_inference_steps: 30
+
+# Classifier-free guidance scale for shape generation.
+guidance_scale: 7.5
+
+# Target triangle count for final decimation. Set to null (or omit) to keep
+# the raw high-poly mesh produced by the model.
+face_limit: 40000
+
+# Output mesh format. "glb" is recommended (single file, textures embedded).
+output_format: "glb"
+
+# If true, offload models between pipeline stages to reduce peak VRAM usage.
+# Only needed on GPUs with < 16 GB VRAM. Slower due to repeated CPU<->GPU
+# transfers.
+low_vram: false
+
+# Folders scanned/written by src/batch.py.
+input_dir: "input"
+output_dir: "output"

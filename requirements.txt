@@ -1,0 +1,15 @@
+# NOTE: torch / torchvision are intentionally NOT pinned here.
+# Install them first following the official selector for your CUDA version:
+# https://pytorch.org/get-started/locally/
+# See INSTALL.md section 3.
+
+pyyaml>=6.0
+trimesh>=4.0.0
+tqdm>=4.66.0
+numpy>=1.24,<2.0
+pillow>=10.0.0
+huggingface_hub>=0.23.0
+
+# Hunyuan3D-2.1 (Tencent repo) and its dependencies (custom rasterizer,
+# diffusers fork, etc.) are NOT listed here: they must be installed from
+# the cloned Tencent repo itself. See INSTALL.md section 4 and 5.
