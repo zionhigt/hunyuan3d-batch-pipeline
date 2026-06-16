@@ -3,7 +3,7 @@
 This module does NOT reimplement the model. It orchestrates the shape
 (Hunyuan3DDiTFlowMatchingPipeline) and texture (Hunyuan3DPaintPipeline)
 pipelines from the official Tencent repository, which must be importable
-(either as an editable install or via PYTHONPATH). See INSTALL.md.
+via a .pth file or PYTHONPATH. See INSTALL.md.
 """
 
 from __future__ import annotations
@@ -25,7 +25,14 @@ try:
         FaceReducer,
         FloaterRemover,
     )
-    from hy3dpaint.textureGenPipeline import Hunyuan3DPaintConfig, Hunyuan3DPaintPipeline
+    from hy3dpaint.textureGenPipeline import Hunyuan3DPaintPipeline
+
+    # Hunyuan3DPaintConfig is optional: some repo versions expose it, others don't.
+    try:
+        from hy3dpaint.textureGenPipeline import Hunyuan3DPaintConfig
+        _HAS_PAINT_CONFIG = True
+    except ImportError:
+        _HAS_PAINT_CONFIG = False
 
     HY3D_AVAILABLE = True
 except ImportError as exc:  # pragma: no cover - depends on external repo
@@ -33,13 +40,19 @@ except ImportError as exc:  # pragma: no cover - depends on external repo
     _IMPORT_ERROR = exc
 
 _NOT_AVAILABLE_MESSAGE = (
-    "Le repo Hunyuan3D-2.1 de Tencent n'est pas importable (modules "
-    "'hy3dshape' / 'hy3dpaint' introuvables).\n"
-    "Clonez https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1 et installez-le "
-    "(pip install -e ../Hunyuan3D-2.1, ou PYTHONPATH, ou sous-module git).\n"
+    "Le repo Hunyuan3D-2.1 de Tencent n'est pas importable.\n"
+    "Assurez-vous que le .pth pointe vers les bons sous-dossiers :\n"
+    "  python -c \"import site; f=open(site.getsitepackages()[0]+'/hunyuan3d.pth','w'); "
+    "f.write('C:/Users/Shadow/Hunyuan3D-2.1\\nC:/Users/Shadow/Hunyuan3D-2.1/hy3dshape\\n'); f.close()\"\n"
     "Voir INSTALL.md, section 5, pour la procedure complete.\n"
     f"Erreur d'import d'origine: {_IMPORT_ERROR!r}"
 )
+
+
+def _make_paint_pipeline() -> "Hunyuan3DPaintPipeline":
+    if _HAS_PAINT_CONFIG:
+        return Hunyuan3DPaintPipeline(Hunyuan3DPaintConfig())
+    return Hunyuan3DPaintPipeline()
 
 
 class Hunyuan3DPipeline:
@@ -71,8 +84,7 @@ class Hunyuan3DPipeline:
         self.paint_pipeline: Optional["Hunyuan3DPaintPipeline"] = None
         if enable_texture:
             logger.info("Loading texture (paint) pipeline...")
-            paint_config = Hunyuan3DPaintConfig()
-            self.paint_pipeline = Hunyuan3DPaintPipeline(paint_config)
+            self.paint_pipeline = _make_paint_pipeline()
 
         self.face_reducer = FaceReducer()
         self.floater_remover = FloaterRemover()
