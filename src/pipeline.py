@@ -9,6 +9,7 @@ via a .pth file or PYTHONPATH. See INSTALL.md.
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -34,10 +35,14 @@ try:
     except ImportError:
         _HAS_PAINT_CONFIG = False
 
+    import hy3dpaint as _hy3dpaint_module
+    _HY3DPAINT_DIR = Path(list(_hy3dpaint_module.__path__)[0])
+
     HY3D_AVAILABLE = True
 except ImportError as exc:  # pragma: no cover - depends on external repo
     HY3D_AVAILABLE = False
     _IMPORT_ERROR = exc
+    _HY3DPAINT_DIR = None
 
 _NOT_AVAILABLE_MESSAGE = (
     "Le repo Hunyuan3D-2.1 de Tencent n'est pas importable.\n"
@@ -50,9 +55,17 @@ _NOT_AVAILABLE_MESSAGE = (
 
 
 def _make_paint_pipeline(max_num_view: int = 6, resolution: int = 512) -> "Hunyuan3DPaintPipeline":
-    if _HAS_PAINT_CONFIG:
-        return Hunyuan3DPaintPipeline(Hunyuan3DPaintConfig(max_num_view, resolution))
-    return Hunyuan3DPaintPipeline()
+    # textureGenPipeline.py resolves 'ckpt/' relative to CWD; change to its
+    # directory so the model weights are found regardless of launch location.
+    old_cwd = os.getcwd()
+    try:
+        if _HY3DPAINT_DIR is not None:
+            os.chdir(_HY3DPAINT_DIR)
+        if _HAS_PAINT_CONFIG:
+            return Hunyuan3DPaintPipeline(Hunyuan3DPaintConfig(max_num_view, resolution))
+        return Hunyuan3DPaintPipeline()
+    finally:
+        os.chdir(old_cwd)
 
 
 class Hunyuan3DPipeline:
