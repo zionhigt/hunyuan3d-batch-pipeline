@@ -32,6 +32,10 @@ output_format: "glb"
 # transfers.
 low_vram: false
 
+# Texture generation parameters (Hunyuan3DPaintConfig).
+paint_max_num_view: 6       # number of views for multi-view texture synthesis
+paint_resolution: 512       # texture resolution in pixels (512 / 1024)
+
 # Folders scanned/written by src/batch.py.
 input_dir: "input"
 output_dir: "output"

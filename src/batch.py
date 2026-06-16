@@ -82,6 +82,8 @@ def main(argv: list[str] | None = None) -> int:
         model_path=config.model_path,
         enable_texture=config.enable_texture,
         low_vram=config.low_vram,
+        paint_max_num_view=config.paint_max_num_view,
+        paint_resolution=config.paint_resolution,
     )
 
     succeeded: list[str] = []

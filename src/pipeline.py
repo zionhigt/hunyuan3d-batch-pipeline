@@ -43,15 +43,15 @@ _NOT_AVAILABLE_MESSAGE = (
     "Le repo Hunyuan3D-2.1 de Tencent n'est pas importable.\n"
     "Assurez-vous que le .pth pointe vers les bons sous-dossiers :\n"
     "  python -c \"import site; f=open(site.getsitepackages()[0]+'/hunyuan3d.pth','w'); "
-    "f.write('C:/Users/Shadow/Hunyuan3D-2.1\\nC:/Users/Shadow/Hunyuan3D-2.1/hy3dshape\\n'); f.close()\"\n"
+    "f.write('C:/Users/Shadow/Hunyuan3D-2.1\\nC:/Users/Shadow/Hunyuan3D-2.1/hy3dshape\\nC:/Users/Shadow/Hunyuan3D-2.1/hy3dpaint\\n'); f.close()\"\n"
     "Voir INSTALL.md, section 5, pour la procedure complete.\n"
     f"Erreur d'import d'origine: {_IMPORT_ERROR!r}"
 )
 
 
-def _make_paint_pipeline() -> "Hunyuan3DPaintPipeline":
+def _make_paint_pipeline(max_num_view: int = 6, resolution: int = 512) -> "Hunyuan3DPaintPipeline":
     if _HAS_PAINT_CONFIG:
-        return Hunyuan3DPaintPipeline(Hunyuan3DPaintConfig())
+        return Hunyuan3DPaintPipeline(Hunyuan3DPaintConfig(max_num_view, resolution))
     return Hunyuan3DPaintPipeline()
 
 
@@ -64,6 +64,8 @@ class Hunyuan3DPipeline:
         enable_texture: bool = True,
         device: str = "cuda",
         low_vram: bool = False,
+        paint_max_num_view: int = 6,
+        paint_resolution: int = 512,
     ) -> None:
         if not HY3D_AVAILABLE:
             raise RuntimeError(_NOT_AVAILABLE_MESSAGE)
@@ -72,6 +74,8 @@ class Hunyuan3DPipeline:
         self.enable_texture = enable_texture
         self.device = device
         self.low_vram = low_vram
+        self.paint_max_num_view = paint_max_num_view
+        self.paint_resolution = paint_resolution
 
         logger.info("Loading shape pipeline from '%s' on %s...", model_path, device)
         self.shape_pipeline = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
@@ -84,7 +88,10 @@ class Hunyuan3DPipeline:
         self.paint_pipeline: Optional["Hunyuan3DPaintPipeline"] = None
         if enable_texture:
             logger.info("Loading texture (paint) pipeline...")
-            self.paint_pipeline = _make_paint_pipeline()
+            self.paint_pipeline = _make_paint_pipeline(
+                max_num_view=self.paint_max_num_view,
+                resolution=self.paint_resolution,
+            )
 
         self.face_reducer = FaceReducer()
         self.floater_remover = FloaterRemover()

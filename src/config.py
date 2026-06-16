@@ -29,6 +29,8 @@ class PipelineConfig:
     face_limit: Optional[int] = 40000
     output_format: str = "glb"
     low_vram: bool = False
+    paint_max_num_view: int = 6
+    paint_resolution: int = 512
     input_dir: str = "input"
     output_dir: str = "output"
 
@@ -105,6 +107,8 @@ def add_config_cli_arguments(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument("--output-format", dest="output_format", type=str, default=None, choices=["glb", "obj", "ply", "stl"])
     parser.add_argument("--low-vram", dest="low_vram", action="store_true", default=None)
+    parser.add_argument("--paint-max-num-view", dest="paint_max_num_view", type=int, default=None)
+    parser.add_argument("--paint-resolution", dest="paint_resolution", type=int, default=None)
     parser.add_argument("--input-dir", dest="input_dir", type=str, default=None)
     parser.add_argument("--output-dir", dest="output_dir", type=str, default=None)
 
