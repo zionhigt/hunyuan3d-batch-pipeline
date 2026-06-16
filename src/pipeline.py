@@ -36,7 +36,9 @@ try:
         _HAS_PAINT_CONFIG = False
 
     import hy3dpaint as _hy3dpaint_module
-    _HY3DPAINT_DIR = Path(list(_hy3dpaint_module.__path__)[0])
+    # textureGenPipeline expects CWD = parent of hy3dpaint (constructs paths
+    # like CWD/'hy3dpaint'/'cfgs'/... and CWD/'ckpt'/...).
+    _HY3DPAINT_DIR = Path(list(_hy3dpaint_module.__path__)[0]).parent
 
     HY3D_AVAILABLE = True
 except ImportError as exc:  # pragma: no cover - depends on external repo
@@ -55,8 +57,8 @@ _NOT_AVAILABLE_MESSAGE = (
 
 
 def _make_paint_pipeline(max_num_view: int = 6, resolution: int = 512) -> "Hunyuan3DPaintPipeline":
-    # textureGenPipeline.py resolves 'ckpt/' relative to CWD; change to its
-    # directory so the model weights are found regardless of launch location.
+    # textureGenPipeline.py resolves 'ckpt/' and 'hy3dpaint/cfgs/' relative
+    # to CWD; chdir to Hunyuan3D-2.1 root so both paths resolve correctly.
     old_cwd = os.getcwd()
     try:
         if _HY3DPAINT_DIR is not None:
