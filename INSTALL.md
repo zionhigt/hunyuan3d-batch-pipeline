@@ -133,16 +133,18 @@ l'étape 4. Deux options pour le lier :
 
 > **Note** : le repo Tencent ne contient pas de `setup.py` ni de
 > `pyproject.toml`, donc `pip install -e` échoue avec « does not appear to
-> be a Python project ». Utiliser `conda develop` ou `PYTHONPATH` à la place.
+> be a Python project ». `conda develop` nécessite `conda-build` (non
+> installé par défaut). Utiliser un fichier `.pth` à la place.
 
-### Option A (recommandée) : `conda develop`
+### Option A (recommandée) : fichier `.pth` dans le site-packages de l'env
 
-`conda develop` est l'équivalent de `pip install -e` mais sans nécessiter de
-`setup.py`. Il ajoute le chemin dans l'env conda de façon permanente.
+Mécanisme natif Python : au démarrage, Python lit tous les `.pth` de son
+`site-packages` et ajoute les chemins à `sys.path`. Permanent, lié à l'env
+`hy3d`, sans modifier le repo Tencent.
 
 ```bash
 conda activate hy3d
-conda develop C:\Users\Shadow\Hunyuan3D-2.1
+python -c "import site; open(site.getsitepackages()[0] + '/hunyuan3d.pth', 'w').write('C:/Users/Shadow/Hunyuan3D-2.1\n')"
 ```
 
 Vérification :
@@ -150,21 +152,24 @@ Vérification :
 python -c "import hy3dshape; print('OK')"
 ```
 
-### Option B : `PYTHONPATH` permanent
+### Option B : `PYTHONPATH` (session courante)
 
+```bash
+set PYTHONPATH=C:\Users\Shadow\Hunyuan3D-2.1
+```
+
+Pour le rendre permanent dans tous les terminaux Windows :
 ```bash
 setx PYTHONPATH "C:\Users\Shadow\Hunyuan3D-2.1"
 ```
-
-Fermer et rouvrir le terminal conda pour que `setx` prenne effet. Pour la
-session courante seulement : `set PYTHONPATH=C:\Users\Shadow\Hunyuan3D-2.1`.
+Fermer et rouvrir le terminal après `setx`.
 
 ### Option C : sous-module git (si le repo Tencent est dans ce projet)
 
 ```bash
 git submodule add https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1.git Hunyuan3D-2.1
 git submodule update --init --recursive
-conda develop Hunyuan3D-2.1
+python -c "import site; open(site.getsitepackages()[0] + '/hunyuan3d.pth', 'w').write('Hunyuan3D-2.1\n')"
 ```
 
 ## 6. Vérification
