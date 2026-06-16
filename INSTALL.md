@@ -131,27 +131,40 @@ pip install -r requirements.txt
 Ce projet importe `hy3dshape` et `hy3dpaint` depuis le repo Tencent cloné à
 l'étape 4. Deux options pour le lier :
 
-### Option A (recommandée) : clone séparé + install editable
+> **Note** : le repo Tencent ne contient pas de `setup.py` ni de
+> `pyproject.toml`, donc `pip install -e` échoue avec « does not appear to
+> be a Python project ». Utiliser `conda develop` ou `PYTHONPATH` à la place.
 
-Cloner `Hunyuan3D-2.1` à côté de `hunyuan3d-batch-pipeline` (même dossier
-parent), puis :
+### Option A (recommandée) : `conda develop`
 
-```bash
-pip install -e ../Hunyuan3D-2.1
-```
-
-Ou, sans install, ajouter le repo au `PYTHONPATH` :
+`conda develop` est l'équivalent de `pip install -e` mais sans nécessiter de
+`setup.py`. Il ajoute le chemin dans l'env conda de façon permanente.
 
 ```bash
-setx PYTHONPATH "C:\path\to\Hunyuan3D-2.1"
+conda activate hy3d
+conda develop C:\Users\Shadow\Hunyuan3D-2.1
 ```
 
-### Option B : sous-module git
+Vérification :
+```bash
+python -c "import hy3dshape; print('OK')"
+```
+
+### Option B : `PYTHONPATH` permanent
+
+```bash
+setx PYTHONPATH "C:\Users\Shadow\Hunyuan3D-2.1"
+```
+
+Fermer et rouvrir le terminal conda pour que `setx` prenne effet. Pour la
+session courante seulement : `set PYTHONPATH=C:\Users\Shadow\Hunyuan3D-2.1`.
+
+### Option C : sous-module git (si le repo Tencent est dans ce projet)
 
 ```bash
 git submodule add https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1.git Hunyuan3D-2.1
 git submodule update --init --recursive
-pip install -e Hunyuan3D-2.1
+conda develop Hunyuan3D-2.1
 ```
 
 ## 6. Vérification
