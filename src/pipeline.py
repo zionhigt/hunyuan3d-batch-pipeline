@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
+import tempfile
 from pathlib import Path
 from typing import Optional
 
@@ -141,7 +142,24 @@ class Hunyuan3DPipeline:
 
         if self.enable_texture and self.paint_pipeline is not None:
             logger.info("Generating PBR texture for '%s'...", image_path)
-            mesh = self.paint_pipeline(mesh, image_path=image_path)
+            # textureGenPipeline.__call__ expects a mesh file path, not a Trimesh
+            # object. Export to a temp GLB, run paint, then load back the result.
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                tmp_mesh_path = os.path.join(tmp_dir, "mesh.glb")
+                mesh.export(tmp_mesh_path)
+                result = self.paint_pipeline(tmp_mesh_path, image_path=image_path)
+                if isinstance(result, (str, Path)) and Path(result).exists():
+                    mesh = trimesh.load(str(result))
+                elif isinstance(result, trimesh.Trimesh):
+                    mesh = result
+                # else: paint pipeline modified mesh in-place or returned None;
+                # reload from the temp path if a textured output was written there.
+                else:
+                    # look for any GLB the pipeline may have written alongside the input
+                    for candidate in Path(tmp_dir).rglob("*.glb"):
+                        if candidate != Path(tmp_mesh_path):
+                            mesh = trimesh.load(str(candidate))
+                            break
 
         return mesh
 
